@@ -1,6 +1,6 @@
-# docker notes 
+# Docker 
 
-container mgmt software. more resources can be deployed = high availability, less $. pkg software so it can run on any hardware and works on anyones machine. secure. consistent (using templates). Can boot a difft OS, own process space, network interface, install pkgs. VM vs container - VM has a complete OS, container is lightweight and uses the host OS kernel
+container mgmt software. more resources can be deployed = high availability, less $. pkg software so it can run on any hardware and works on anyones machine. secure. consistent (using templates). Can boot a difft OS, own process space, network interface, install pkgs. VM vs container - VM has a complete OS, container is lightweight and uses the host OS kernel / "Automates the deployment of applications inside software containers, by providing an additional layer of abstraction and automation of operating-system-level virtualization"
 
 "Client-server architecture. client talks to the Docker daemon which does the heavy lifting of building, running, and distributing your Docker containers. The Docker client and daemon can run on the same system, or you can connect a Docker client to a remote Docker daemon. The Docker client and daemon communicate using a REST API, over UNIX sockets or a network interface. Another Docker client is Docker Compose, that lets you work with applications consisting of a set of containers." [docs](https://docs.docker.com/get-started/overview/)
 
@@ -12,20 +12,20 @@ Dockerfile = blueprint for building a docker img. contains code to build this im
 
 ---
 
-Create a Dockerfile and add cmds to assemble image. Run `docker build` then `docker run`. 
+Create a Dockerfile and add steps/layers to run the app. Run `docker build` then `docker run`. 
 
 ## Statements
 
-Command | Purpose | Example
+Statement | Purpose | Example
 --- | --- | ---
-FROM | To specify the parent image. | `FROM alpine` = `FROM alpine:latest` `FROM httpd:2.4`
-RUN | To install any applications and packages required for your container. | `RUN apk add python`
-COPY | To copy over files or directories from a specific location. | `COPY . /usr/local/apache2/htdocs/`
+FROM | To specify the parent image. | `FROM alpine` = `FROM alpine:latest` `FROM httpd:2.4` (image/tag:version)
+RUN | To install any applications and packages required for your container. | `RUN apk add python` `RUN mkdir -p /app/src` `RUN npm install`
+COPY | To copy over files or directories from a specific location. | `COPY . /usr/local/apache2/htdocs/` `COPY package.json .` ('.' = working dir) `COPY . .` (source / destination)
 ADD | As COPY, but also able to handle remote URLs and unpack compressed files. | `ADD webserver.tar.gz /var/www/html/`
 ENTRYPOINT | Command that will always be executed when the container starts. If not specified, the default is /bin/sh -c | `ENTRYPOINT [ "ping", "-t", "5" ]`
-CMD | Arguments passed to the entrypoint. If ENTRYPOINT is not set (defaults to /bin/sh -c), the CMD will be the commands the container executes. | `CMD ["8.8.8.8"]`
-EXPOSE | To define which port through which to access your container application. | `EXPOSE 80` (exposes port 80) / cmd: -p or -P if EXPOSE in dockerfile
-WORKDIR  | To set the working directory for any commands that follow in the Dockerfile.
+CMD | Arguments passed to the entrypoint. If ENTRYPOINT is not set (defaults to /bin/sh -c), the CMD will be the commands the container executes. | `CMD ["8.8.8.8"]` `CMD ["npm", "start"]`
+EXPOSE | To define which port through which to access your container application. | `EXPOSE 80` (exposes port 80 to view in browser) / cmd: -p or -P if EXPOSE in dockerfile
+WORKDIR  | To set the working directory for any commands that follow in the Dockerfile. New dir created if doesn't exist | `WORKDIR /app/src`
 LABEL | To add metadata to the image.
 
 [table from Jfrog](https://jfrog.com/knowledge-base/a-beginners-guide-to-understanding-and-building-docker-images/), plus my examples
@@ -33,6 +33,39 @@ LABEL | To add metadata to the image.
 - **RUN** - only executes when building/running the img
 - **CMD** and **ENTRYPOINT** - CMD can be overridden / ENTRYPOINT sets the main process / both execute when start/run container
 - **ADD** - COPY vs ADD - same but ADD supports remote URLs and uncompressing tar files, and copies content to the destination
+
+---
+
+## Commands
+
+Command | Purpose | Example
+--- | --- | ---
+docker --version | gets the current version of docker | 
+docker info | detailed information about docker installed on the system including the kernel version, number of containers and images | 
+docker images | list all the docker images  | 
+docker run | runs command in a new container | `docker run -it -d httpd`
+docker build | build an image from a Dockerfile | `docker build . -t image:version`
+docker push | push (upload) an image or a repository to a registry | `docker push msguery/imagename:latest`
+docker pull | pull an image or a repository from a registry | `docker pull msguery/imagename:latest`
+docker ps | lists all the docker containers are running with container details | `docker ps -a` lists all containers running, exited, and stopped
+docker exec | this command is used to access the running container | `docker exec -it 09ca6feb6efc bash`
+docker rm | deletes the docker container with container id mentioned | docker rm 9b6343d3b5a0
+docker rmi | deletes the docker image with the docker image id mentioned | `docker rmi fce289e99eb9`
+docker start or restart | start or restart the docker container with container id mentioned | `docker start 09ca6feb6efc` `docker restart 09ca6feb6efc`
+docker stop | stop a container with container id mentioned  | `docker stop 09ca6feb6efc`
+docker kill | stops the docker container immediately | `docker kill 09ca6feb6efc`
+docker login / logout | login/out to Docker Hub | `docker login` `docker login -u msguery` `docker logout`
+docker tag | creates a tag | `docker tag 09ca6feb6efc msguery/imagename:latest`
+docker rename | rename a container | 
+docker cp | copies a file from a docker container to the local system | `docker cp 09ca6feb6efc:/usr/local/apache2/logs/httpd.pid /home/msguery/` (source destination)
+docker network | lists the details of all the network in the cluster | `docker network ls`
+docker volume |	manage volumes |
+docker history | history of a docker image with the image name mentioned | `docker history httpd`
+docker logs | shows logs of the docker container with contained id mentioned |  `docker logs 09ca6feb6efc`
+docker top |	display the running processes of a container |
+docker volume | create a volume which docker container will use to store data | `docker volume create` `docker volume ls`
+docker import / export | import the contents from a tarball to create a filesystem image or export a container’s filesystem as a tar archive |  `docker import` `docker export`
+docker update	| update configuration of one or more containers |
 
 ---
 
@@ -75,6 +108,51 @@ In the terminal
 ![Docker Hub repo](ss-docker-hub-repo.png)
 
 If public, `docker image pull servername/reponame:latest` to pull image
+
+---
+
+# Docker Compose
+
+Used to run multiple Docker Containers as a single server. Create Dockerfile then YAML file (docker-compose.yml). [Get started guide](https://docs.docker.com/compose/gettingstarted/) / [Docs](https://docs.docker.com/compose/) / [WordPress example](https://docs.docker.com/compose/wordpress/). Services - 2 defined below - db, wp
+
+```yaml
+version: "3.9"
+    
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - .wp-content:/var/www/html/
+volumes:
+  db_data: {}
+```
+
+In terminal - `docker-compose up -d` (-d = detached mode, runs as bg task, can use terminal), `docker compose down` - stops ctnr
+
+Can use Docker extension in VSC instead of cli. RIght click for more options, 'Open in browser'.
+
+---
 
 # Advanced
 
