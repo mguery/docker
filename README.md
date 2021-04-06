@@ -18,14 +18,15 @@ Create a Dockerfile and add steps/layers to run the app. Run `docker build` then
 
 Statement | Purpose | Example
 --- | --- | ---
-FROM | To specify the parent image. | `FROM alpine` = `FROM alpine:latest` `FROM httpd:2.4` (image/tag:version)
+FROM | To specify/set the base image. | `FROM alpine` = `FROM alpine:latest` `FROM httpd:2.4` (image/tag:version)
 RUN | To install any applications and packages required for your container. | `RUN apk add python` `RUN mkdir -p /app/src` `RUN npm install`
 COPY | To copy over files or directories from a specific location. | `COPY . /usr/local/apache2/htdocs/` `COPY package.json .` ('.' = working dir) `COPY . .` (source / destination)
-ADD | As COPY, but also able to handle remote URLs and unpack compressed files. | `ADD webserver.tar.gz /var/www/html/`
+ADD | As COPY, but also able to handle remote URLs and unpack compressed files. | `ADD webserver.tar.gz /var/www/html/` (source / dest)
 ENTRYPOINT | Command that will always be executed when the container starts. If not specified, the default is /bin/sh -c | `ENTRYPOINT [ "ping", "-t", "5" ]`
 CMD | Arguments passed to the entrypoint. If ENTRYPOINT is not set (defaults to /bin/sh -c), the CMD will be the commands the container executes. | `CMD ["8.8.8.8"]` `CMD ["npm", "start"]`
 EXPOSE | To define which port through which to access your container application. | `EXPOSE 80` (exposes port 80 to view in browser) / cmd: -p or -P if EXPOSE in dockerfile
 WORKDIR  | To set the working directory for any commands that follow in the Dockerfile. New dir created if doesn't exist | `WORKDIR /app/src`
+VOLUME | | `VOLUME ["/data"]` (puts /data -> /var/lib/docker/volumes/)
 LABEL | To add metadata to the image.
 
 [table from Jfrog](https://jfrog.com/knowledge-base/a-beginners-guide-to-understanding-and-building-docker-images/), plus my examples
@@ -49,7 +50,7 @@ docker push | push (upload) an image or a repository to a registry | `docker pus
 docker pull | pull an image or a repository from a registry | `docker pull msguery/imagename:latest`
 docker ps | lists all the docker containers are running with container details | `docker ps -a` lists all containers running, exited, and stopped
 docker exec | this command is used to access the running container | `docker exec -it 09ca6feb6efc bash`
-docker rm | deletes the docker container with container id mentioned | docker rm 9b6343d3b5a0
+docker rm | deletes the docker container with container id mentioned | `docker rm 9b6343d3b5a0`
 docker rmi | deletes the docker image with the docker image id mentioned | `docker rmi fce289e99eb9`
 docker start or restart | start or restart the docker container with container id mentioned | `docker start 09ca6feb6efc` `docker restart 09ca6feb6efc`
 docker stop | stop a container with container id mentioned  | `docker stop 09ca6feb6efc`
