@@ -266,3 +266,7 @@ Then run docker build
 ---
 Docker vs Kubernetes
 Use Docker as a container runtime env, Kubernetes platform to deploy images.
+
+Resources
+
+- [Containers](https://github.com/bregman-arie/devops-exercises#containers)
