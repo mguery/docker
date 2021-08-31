@@ -264,7 +264,8 @@ Then run docker build
 (TL;DR - how can you reduce an img size? - multistage image, reduce number of instructions, export and import)
 
 ---
-Docker vs Kubernetes
+**Docker vs Kubernetes**
+
 Use Docker as a container runtime env, Kubernetes platform to deploy images.
 
 Resources
